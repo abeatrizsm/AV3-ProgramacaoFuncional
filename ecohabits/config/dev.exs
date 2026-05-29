@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :ecohabits, Ecohabits.Repo,
   username: "root",
-  password: "",
+  password: "2410411",
   hostname: "localhost",
   database: "ecohabits_dev",
   stacktrace: true,

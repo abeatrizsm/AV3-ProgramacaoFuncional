@@ -4,6 +4,10 @@ defmodule Ecohabits.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :name, :string
+    field :bio, :string
+    field :points, :integer, default: 0
+
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -12,17 +16,20 @@ defmodule Ecohabits.Accounts.User do
     timestamps(type: :utc_datetime)
   end
 
-  @doc """
-  A user changeset for registering or changing the email.
+  def registration_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:name, :email, :password])
+    |> validate_required([:name, :email, :password])
+    |> validate_length(:password, min: 6)
+    |> validate_format(
+        :email,
+        ~r/^[^@,;\s]+@[^@,;\s]+$/,
+        message: "O email deve ter o sinal '@' e não conter espaços"
+      )
+    |> unique_constraint(:email)
+    |> maybe_hash_password(hash_password: true)
+  end
 
-  It requires the email to change otherwise an error is added.
-
-  ## Options
-
-    * `:validate_unique` - Set to false if you don't want to validate the
-      uniqueness of the email, useful when displaying live validations.
-      Defaults to `true`.
-  """
   def email_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email])

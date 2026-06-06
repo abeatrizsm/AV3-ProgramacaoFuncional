@@ -7,57 +7,95 @@ defmodule EcohabitsWeb.UserLive.Registration do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm">
-        <div class="text-center  ">
-          <.header>
-            <h2 class="text-white text-2xl font-bold mb-3 ">
-              Crie sua conta para registrar seus Habitos Ecologicos!
-            </h2>
-            <:subtitle>
-              Já tem uma conta?
-              <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
-                Entre
-              </.link>
-              nela agora.
-            </:subtitle>
-          </.header>
-        </div>
+    <Layouts.flash_group flash={@flash} />
 
-        <.form for={@form} id="registration_form" phx-submit="save" phx-change="validate">
-          <.input
-            field={@form[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            spellcheck="false"
-            required
-            phx-mounted={JS.focus()}
-          />
-          <.input
-            field={@form[:password]}
-            type="password"
-            label="Senha"
-            autocomplete="password"
-            spellcheck="false"
-            required
-            phx-mounted={JS.focus()}
-          />
-          <.input
-            field={@form[:name]}
-            type="text"
-            label="Nome"
-            autocomplete="name"
-            required
-            phx-mounted={JS.focus()}
-          />
+    <div class="flex min-h-screen bg-[#101318]">
 
-          <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
-            Crie sua conta
-          </.button>
-        </.form>
+
+    <div class="flex flex-col justify-center items-center w-full p-18">
+
+    <.form
+      for={@form}
+      id="registration_form"
+      phx-submit="save"
+      phx-change="validate"
+      class="w-full max-w-lg"
+    >
+
+      <h2 class="text-white text-4xl font-bold mb-3">
+        Crie sua conta no EcoHabits
+      </h2>
+
+      <p class="text-gray-400 text-base">
+        Comece hoje sua jornada rumo a hábitos mais sustentáveis.
+      </p>
+
+      <label class="block text-white mb-3 mt-10">
+        Nome:
+      </label>
+
+      <input
+        type="text"
+        name="user[name]"
+        value={@form[:name].value}
+        placeholder="Digite seu nome..."
+        class="w-full mb-6 px-4 py-3 rounded-xl bg-[#191d24] border border-[#2b303b] text-white placeholder-gray-300"
+        required
+      />
+
+      <label class="block text-white mb-3">
+        Email:
+      </label>
+
+      <input
+        type="email"
+        name="user[email]"
+        value={@form[:email].value}
+        placeholder="Digite seu email..."
+        class="w-full mb-6 px-4 py-3 rounded-xl bg-[#191d24] border border-[#2b303b] text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500"
+        required
+      />
+
+      <label class="block text-white mb-3">
+        Senha:
+      </label>
+
+      <input
+        type="password"
+        name="user[password]"
+        placeholder="Crie uma senha..."
+        class="w-full mb-10 px-4 py-3 rounded-xl bg-[#191d24] border border-[#2b303b] text-white placeholder-gray-300"
+        required
+      />
+
+      <button
+        type="submit"
+        class="w-full text-white bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-800 py-3 rounded-xl font-semibold"
+      >
+        Criar minha conta
+      </button>
+
+      <div class="text-center flex justify-center items-center mt-8 gap-2">
+
+        <p class="text-gray-400">
+          Já possui uma conta?
+        </p>
+
+        <.link
+          navigate={~p"/users/log-in"}
+          class="text-green-500 hover:text-green-400 font-semibold"
+        >
+          Entrar
+        </.link>
+
       </div>
-    </Layouts.app>
+
+    </.form>
+
+    </div>
+
+
+    </div>
     """
   end
 

@@ -7,11 +7,18 @@ defmodule EcohabitsWeb.UserLive.Profile do
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
 
+    days_in_ecohabits =
+      Date.diff(
+        Date.utc_today(),
+        DateTime.to_date(user.inserted_at)
+      )
+
     {:ok,
      assign(socket,
        user: user,
        name: user.name || "",
-       bio: user.bio || ""
+       bio: user.bio || "",
+       days_in_ecohabits: days_in_ecohabits
      )}
   end
 
@@ -48,15 +55,17 @@ defmodule EcohabitsWeb.UserLive.Profile do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="bg-[#101318] min-h-screen p-12">
+    <div class="flex min-h-screen">
+      <.sidebar current_scope={@current_scope} />
+    <div class="bg-[#101318] min-h-screen ml-64 px-28 py-18 flex-1 p-12">
 
-      <h2 class="text-white font-bold text-5xl mb-8">
+      <h2 class="text-white font-bold text-4xl mb-8">
         Meu Perfil
       </h2>
 
-      <div class="flex gap-7">
+      <div class="flex flex-col gap-7">
 
-        <div class="flex flex-col p-6 bg-[#191d24] border border-[#2b303b] rounded-2xl w-screen gap-4">
+        <div class="flex flex-col p-6 bg-[#191d24] border border-[#2b303b] rounded-2xl w-full gap-4">
 
           <h2 class="text-white text-2xl font-semibold">
             Informações Pessoais
@@ -120,9 +129,42 @@ defmodule EcohabitsWeb.UserLive.Profile do
           </form>
 
         </div>
+        <div class="flex gap-6 mt-8">
+          <div class="bg-[#191d24] border border-[#2b303b] rounded-2xl p-6 w-full">
+            <h3 class="text-white text-xl font-semibold mb-6">
+              Estatísticas
+            </h3>
 
+            <div class="grid grid-cols-2 gap-8">
+
+              <div>
+                <p class="text-gray-400">
+                  Pontuação Total
+                </p>
+
+                <p class="text-4xl font-bold text-green-500 mt-2">
+                  <%= @user.points %>
+                </p>
+              </div>
+
+              <div>
+                <p class="text-gray-400">
+                  Dias no EcoHabits
+                </p>
+
+                <p class="text-4xl font-bold text-blue-500 mt-2">
+                  <%= @days_in_ecohabits %>
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
       </div>
 
+    </div>
     </div>
     """
   end

@@ -4,7 +4,6 @@ defmodule Ecohabits.Accounts do
 
   alias Ecohabits.Accounts.{User, UserToken, UserNotifier}
 
-
   def get_user_by_email(email) when is_binary(email) do
     Repo.get_by(User, email: email)
   end
@@ -17,11 +16,20 @@ defmodule Ecohabits.Accounts do
 
   def get_user!(id), do: Repo.get!(User, id)
 
-
   def register_user(attrs) do
     %User{}
     |> User.registration_changeset(attrs)
     |> Repo.insert()
+  end
+
+  def change_user_registration(user, attrs \\ %{}) do
+    User.registration_changeset(user, attrs)
+  end
+
+  def update_user_profile(user, attrs) do
+    user
+    |> User.profile_changeset(attrs)
+    |> Repo.update()
   end
 
   ## Settings
@@ -208,7 +216,7 @@ defmodule Ecohabits.Accounts do
   end
 
   @doc """
-  Delivers the magic link login instructions to the given user.
+  Delivers the magic link login instructions to the given user. APAGAR TALVEZ
   """
   def deliver_login_instructions(%User{} = user, magic_link_url_fun)
       when is_function(magic_link_url_fun, 1) do
@@ -217,15 +225,10 @@ defmodule Ecohabits.Accounts do
     UserNotifier.deliver_login_instructions(user, magic_link_url_fun.(encoded_token))
   end
 
-  @doc """
-  Deletes the signed token with the given context.
-  """
   def delete_user_session_token(token) do
     Repo.delete_all(from(UserToken, where: [token: ^token, context: "session"]))
     :ok
   end
-
-  ## Token helper
 
   defp update_user_and_delete_all_tokens(changeset) do
     Repo.transact(fn ->

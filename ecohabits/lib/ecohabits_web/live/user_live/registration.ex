@@ -9,15 +9,17 @@ defmodule EcohabitsWeb.UserLive.Registration do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm">
-        <div class="text-center">
+        <div class="text-center  ">
           <.header>
-            Register for an account
+            <h2 class="text-white text-2xl font-bold mb-3 ">
+              Crie sua conta para registrar seus Habitos Ecologicos!
+            </h2>
             <:subtitle>
-              Already registered?
+              Já tem uma conta?
               <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
-                Log in
+                Entre
               </.link>
-              to your account now.
+              nela agora.
             </:subtitle>
           </.header>
         </div>
@@ -32,9 +34,26 @@ defmodule EcohabitsWeb.UserLive.Registration do
             required
             phx-mounted={JS.focus()}
           />
+          <.input
+            field={@form[:password]}
+            type="password"
+            label="Senha"
+            autocomplete="password"
+            spellcheck="false"
+            required
+            phx-mounted={JS.focus()}
+          />
+          <.input
+            field={@form[:name]}
+            type="text"
+            label="Nome"
+            autocomplete="name"
+            required
+            phx-mounted={JS.focus()}
+          />
 
           <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
-            Create an account
+            Crie sua conta
           </.button>
         </.form>
       </div>
@@ -57,20 +76,14 @@ defmodule EcohabitsWeb.UserLive.Registration do
   @impl true
   def handle_event("save", %{"user" => user_params}, socket) do
     case Accounts.register_user(user_params) do
-      {:ok, user} ->
-        {:ok, _} =
-          Accounts.deliver_login_instructions(
-            user,
-            &url(~p"/users/log-in/#{&1}")
-          )
-
+      {:ok, _user} ->
         {:noreply,
          socket
          |> put_flash(
            :info,
-           "An email was sent to #{user.email}, please access it to confirm your account."
+           "Conta criada com sucesso!"
          )
-         |> push_navigate(to: ~p"/users/log-in")}
+         |> push_navigate(to: ~p"/")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

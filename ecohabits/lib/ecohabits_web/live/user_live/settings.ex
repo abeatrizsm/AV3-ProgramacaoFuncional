@@ -1,7 +1,7 @@
 defmodule EcohabitsWeb.UserLive.Settings do
   use EcohabitsWeb, :live_view
 
-  on_mount {EcohabitsWeb.UserAuth, :require_sudo_mode}
+  on_mount({EcohabitsWeb.UserAuth, :require_sudo_mode})
 
   alias Ecohabits.Accounts
 
@@ -9,7 +9,7 @@ defmodule EcohabitsWeb.UserLive.Settings do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="text-center">
+      <div class="text-center ">
         <.header>
           Account Settings
           <:subtitle>Manage your account email address and password settings</:subtitle>

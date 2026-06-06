@@ -1,134 +1,75 @@
 defmodule EcohabitsWeb.UserLive.Login do
   use EcohabitsWeb, :live_view
 
-  alias Ecohabits.Accounts
-
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm space-y-4">
-        <div class="text-center">
-          <.header>
-            <p>Log in</p>
-            <:subtitle>
-              <%= if @current_scope do %>
-                You need to reauthenticate to perform sensitive actions on your account.
-              <% else %>
-                Don't have an account? <.link
-                  navigate={~p"/users/register"}
-                  class="font-semibold text-brand hover:underline"
-                  phx-no-format
-                >Sign up</.link> for an account now.
-              <% end %>
-            </:subtitle>
-          </.header>
-        </div>
+    <Layouts.flash_group flash={@flash} />
 
-        <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="size-6 shrink-0" />
-          <div>
-            <p>You are running the local mail adapter.</p>
-            <p>
-              To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
-            </p>
-          </div>
-        </div>
+    <div class="flex min-h-screen bg-[#101318]">
+    <div class="flex flex-col justify-center items-center w-full p-20 ">
+    <.form
+      for={%{}}
+      action={~p"/users/log-in"}
+      class="w-full max-w-md"
+    >
+      <h2 class="text-white text-4xl font-bold mb-3 tex">
+        Bem-vindo ao EcoHabits!
+      </h2>
 
-        <.form
-          :let={f}
-          for={@form}
-          id="login_form_magic"
-          action={~p"/users/log-in"}
-          phx-submit="submit_magic"
+      <p class="text-gray-400 text-base">
+        Entre para transformar suas ações diárias em impacto real.
+      </p>
+
+      <label class="block text-white mb-3 mt-10">
+        Email:
+      </label>
+
+      <input
+        type="email"
+        name="user[email]"
+        placeholder="Insira seu email..."
+        class="w-full mb-6 px-4 py-3 rounded-xl bg-[#191d24] border border-[#2b303b] text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500"
+        required
+      />
+
+      <label class="block text-white mb-3">
+        Senha:
+      </label>
+
+      <input
+        type="password"
+        name="user[password]"
+        placeholder="Insira sua senha..."
+        class="w-full rounded-xl mb-10 px-4 py-3 bg-[#191d24] border border-[#2b303b] text-white placeholder-gray-300"
+        required
+      />
+
+      <button
+        type="submit"
+        name="user[remember_me]"
+        value="true"
+        class="w-full text-white bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-800 py-3 rounded-xl font-semibold"
+      >
+        Começar sua mudança
+      </button>
+
+      <div class="text-center flex justify-center items-center mt-8 gap-2">
+        <p class="text-gray-400">
+          Não possui uma conta?
+        </p>
+
+        <a
+          href="/users/register"
+          class="text-green-500 hover:text-green-400 font-semibold"
         >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            spellcheck="false"
-            required
-            phx-mounted={JS.focus()}
-          />
-          <.button class="btn btn-primary w-full">
-            Log in with email <span aria-hidden="true">→</span>
-          </.button>
-        </.form>
-
-        <div class="divider">or</div>
-
-        <.form
-          :let={f}
-          for={@form}
-          id="login_form_password"
-          action={~p"/users/log-in"}
-          phx-submit="submit_password"
-          phx-trigger-action={@trigger_submit}
-        >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            spellcheck="false"
-            required
-          />
-          <.input
-            field={@form[:password]}
-            type="password"
-            label="Password"
-            autocomplete="current-password"
-            spellcheck="false"
-          />
-          <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
-            Log in and stay logged in <span aria-hidden="true">→</span>
-          </.button>
-          <.button class="btn btn-primary btn-soft w-full mt-2">
-            Log in only this time
-          </.button>
-        </.form>
+          Criar conta
+        </a>
       </div>
-    </Layouts.app>
+    </.form>
+    </div>
+    </div>
+
     """
-  end
-
-  @impl true
-  def mount(_params, _session, socket) do
-    email =
-      Phoenix.Flash.get(socket.assigns.flash, :email) ||
-        get_in(socket.assigns, [:current_scope, Access.key(:user), Access.key(:email)])
-
-    form = to_form(%{"email" => email}, as: "user")
-
-    {:ok, assign(socket, form: form, trigger_submit: false)}
-  end
-
-  @impl true
-  def handle_event("submit_password", _params, socket) do
-    {:noreply, assign(socket, :trigger_submit, true)}
-  end
-
-  def handle_event("submit_magic", %{"user" => %{"email" => email}}, socket) do
-    if user = Accounts.get_user_by_email(email) do
-      Accounts.deliver_login_instructions(
-        user,
-        &url(~p"/users/log-in/#{&1}")
-      )
-    end
-
-    info =
-      "If your email is in our system, you will receive instructions for logging in shortly."
-
-    {:noreply,
-     socket
-     |> put_flash(:info, info)
-     |> push_navigate(to: ~p"/users/log-in")}
-  end
-
-  defp local_mail_adapter? do
-    Application.get_env(:ecohabits, Ecohabits.Mailer)[:adapter] == Swoosh.Adapters.Local
   end
 end

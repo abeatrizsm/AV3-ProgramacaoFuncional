@@ -3,15 +3,15 @@ defmodule Ecohabits.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
-    field :email, :string
-    field :name, :string
-    field :bio, :string
-    field :points, :integer, default: 0
+    field(:email, :string)
+    field(:name, :string)
+    field(:bio, :string)
+    field(:points, :integer, default: 0)
 
-    field :password, :string, virtual: true, redact: true
-    field :hashed_password, :string, redact: true
-    field :confirmed_at, :utc_datetime
-    field :authenticated_at, :utc_datetime, virtual: true
+    field(:password, :string, virtual: true, redact: true)
+    field(:hashed_password, :string, redact: true)
+    field(:confirmed_at, :utc_datetime)
+    field(:authenticated_at, :utc_datetime, virtual: true)
 
     timestamps(type: :utc_datetime)
   end
@@ -22,12 +22,18 @@ defmodule Ecohabits.Accounts.User do
     |> validate_required([:name, :email, :password])
     |> validate_length(:password, min: 6)
     |> validate_format(
-        :email,
-        ~r/^[^@,;\s]+@[^@,;\s]+$/,
-        message: "O email deve ter o sinal '@' e não conter espaços"
-      )
+      :email,
+      ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "O email deve ter o sinal '@' e não conter espaços"
+    )
     |> unique_constraint(:email)
     |> maybe_hash_password(hash_password: true)
+  end
+
+  def profile_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:name, :bio])
+    |> validate_required([:name])
   end
 
   def email_changeset(user, attrs, opts \\ []) do

@@ -3,16 +3,41 @@ defmodule Ecohabits.Habits do
 
   alias Ecohabits.Repo
   alias Ecohabits.Habits.CheckIn
+  alias Ecohabits.Accounts.User
 
   def create_check_in(user) do
-    today = Date.utc_today()
+    attrs = %{
+      date: Date.utc_today(),
+      user_id: user.id
+    }
 
     %CheckIn{}
-    |> CheckIn.changeset(%{
-      date: today,
-      user_id: user.id
-    })
+    |> CheckIn.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, check_in} = result ->
+
+        Phoenix.PubSub.broadcast(
+          Ecohabits.PubSub,
+          "community_feed",
+          {:new_check_in, user.name, check_in.date}
+        )
+
+        result
+
+      error ->
+        error
+    end
+  end
+
+  def list_recent_check_ins do
+    Repo.all(
+      from c in CheckIn,
+        join: u in assoc(c, :user),
+        preload: [user: u],
+        order_by: [desc: c.inserted_at],
+        limit: 20
+    )
   end
 
   def list_user_check_ins(user) do

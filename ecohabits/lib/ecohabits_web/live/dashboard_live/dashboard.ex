@@ -2,6 +2,7 @@ defmodule EcohabitsWeb.DashboardLive.Dashboard do
   use EcohabitsWeb, :live_view
 
   alias Ecohabits.Habits
+  alias Phoenix.PubSub
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,12 +14,46 @@ defmodule EcohabitsWeb.DashboardLive.Dashboard do
     points =
       Habits.weekly_points(user)
 
+    community_feed =
+      Habits.list_recent_check_ins()
+
+    if connected?(socket) do
+      PubSub.subscribe(
+        Ecohabits.PubSub,
+        "community_feed"
+      )
+    end
+
     {:ok,
      assign(socket,
        user: user,
        history: history,
-       points: points
+       points: points,
+       community_feed: community_feed
      )}
+  end
+
+  @impl true
+  def handle_info(
+        {:new_check_in, user_name, date},
+        socket
+      ) do
+
+    new_item = %{
+      user_name: user_name,
+      date: date
+    }
+
+    feed =
+      [new_item | socket.assigns.community_feed]
+      |> Enum.take(20)
+
+    {:noreply,
+    assign(
+      socket,
+      :community_feed,
+      feed
+    )}
   end
 
   @impl true
@@ -139,6 +174,43 @@ defmodule EcohabitsWeb.DashboardLive.Dashboard do
               <% end %>
             <% end %>
           </div>
+        </div>
+
+        <div class="flex flex-col w-full mt-10 bg-[#191d24] border border-[#2b303b] rounded-2xl p-6">
+
+          <h2 class="text-white font-semibold text-3xl mb-6">
+            Feed da Comunidade
+          </h2>
+
+          <div class="max-h-96 overflow-y-auto">
+
+            <%= for item <- @community_feed do %>
+
+              <div class="bg-[#101318] border border-[#2b303b] rounded-xl p-4 mb-3">
+
+                <p class="text-white font-semibold">
+                  <%= if Map.has_key?(item, :user) do %>
+                    <%= item.user.name %>
+                  <% else %>
+                    <%= item.user_name %>
+                  <% end %>
+                </p>
+
+                <p class="text-gray-400">
+                  realizou um check-in
+                </p>
+
+                <p class="text-green-500 text-sm mt-1">
+                  <%= item.date %>
+                </p>
+
+              </div>
+
+            <% end %>
+
+          </div>
+
+
         </div>
       </div>
       </div>

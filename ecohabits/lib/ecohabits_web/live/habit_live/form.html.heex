@@ -1,0 +1,75 @@
+<div class="flex min-h-screen">
+  <.sidebar current_scope={@current_scope} />
+
+  <div class="bg-[#101318] min-h-screen ml-64 flex-1 px-28 py-18">
+
+    <h2 class="text-white font-bold text-4xl mb-8">
+      <%= @page_title %>
+    </h2>
+
+    <div class="bg-[#191d24] border border-[#2b303b] rounded-2xl p-8">
+
+      <.form
+        for={@form}
+        phx-change="validate"
+        phx-submit="save">
+
+        <div class="mb-6">
+          <label class="text-white font-semibold block mb-2">
+            Nome
+          </label>
+
+          <.input
+            field={@form[:name]}
+            type="text"
+          />
+        </div>
+
+        <div class="mb-6">
+          <label class="text-white font-semibold block mb-2">
+            Descrição
+          </label>
+
+          <.input
+            field={@form[:description]}
+            type="textarea"
+          />
+        </div>
+
+        <div class="mb-6">
+          <label class="text-white font-semibold block mb-2">
+            Categoria
+          </label>
+
+          <.input
+            field={@form[:category]}
+            type="select"
+            options={Enum.map(@categories, &{&1, &1})}
+          />
+        </div>
+
+        <div class="mb-6">
+          <label class="text-white font-semibold block mb-2">
+            Pontuação
+          </label>
+
+          <.input
+            field={@form[:score]}
+            type="number"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-green-700 rounded-xl text-white w-full h-12 font-semibold">
+
+          Salvar
+
+        </button>
+
+      </.form>
+
+    </div>
+
+  </div>
+</div>

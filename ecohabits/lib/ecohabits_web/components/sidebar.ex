@@ -36,6 +36,13 @@ defmodule EcohabitsWeb.Sidebar do
           Perfil
         </.link>
 
+        <.link
+          navigate="/habits"
+          class="text-white hover:text-green-500 font-semibold"
+        >
+          Habitos
+        </.link>
+
       </div>
 
       <div class="mt-auto p-6 border-t border-gray-700">

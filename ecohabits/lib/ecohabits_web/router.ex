@@ -43,6 +43,9 @@ defmodule EcohabitsWeb.Router do
       live("/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email)
       live("/profile", UserLive.Profile, :show)
       live("/dashboard", DashboardLive.Dashboard, :show)
+      live("/habits", HabitLive.Index, :index)
+      live("/habits/new", HabitLive.Form, :new)
+      live("/habits/:id/edit", HabitLive.Form, :edit)
     end
 
     post("/users/update-password", UserSessionController, :update_password)

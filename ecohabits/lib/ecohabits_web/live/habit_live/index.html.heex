@@ -1,0 +1,143 @@
+<div class="flex min-h-screen">
+  <.sidebar current_scope={@current_scope} />
+
+  <div class="bg-[#101318] min-h-screen ml-64 flex-1 px-28 py-18">
+
+    <div class="flex justify-between items-center mb-8">
+
+      <h2 class="text-white font-bold text-4xl">
+        Hábitos Sustentáveis
+      </h2>
+
+      <.link
+        navigate={~p"/habits/new"}
+        class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold">
+
+        Novo Hábito
+
+      </.link>
+
+    </div>
+
+    <div class="bg-[#191d24] border border-[#2b303b] rounded-2xl p-6 mb-8">
+
+      <label class="text-white font-semibold block mb-3">
+        Filtrar por categoria
+      </label>
+
+      <form phx-change="filter">
+
+        <select
+          name="category"
+          class="bg-[#101318] border border-[#2b303b] rounded-xl p-3 text-white w-80">
+
+          <option value="">
+            Todos
+          </option>
+
+          <%= for category <- @categories do %>
+            <option
+              value={category}
+              selected={@selected_category == category}>
+
+              <%= category %>
+
+            </option>
+          <% end %>
+
+        </select>
+
+      </form>
+
+    </div>
+
+    <div class="bg-[#191d24] border border-[#2b303b] rounded-2xl overflow-hidden">
+
+      <table class="w-full">
+
+        <thead>
+
+          <tr class="border-b border-[#2b303b]">
+
+            <th class="text-left text-gray-300 p-5">
+              Nome
+            </th>
+
+            <th class="text-left text-gray-300 p-5">
+              Descrição
+            </th>
+
+            <th class="text-left text-gray-300 p-5">
+              Categoria
+            </th>
+
+            <th class="text-left text-gray-300 p-5">
+              Pontuação
+            </th>
+
+            <th class="text-left text-gray-300 p-5">
+              Ações
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <%= for habit <- @habits do %>
+
+            <tr class="border-b border-[#2b303b]">
+
+              <td class="p-5 text-white font-medium">
+                <%= habit.name %>
+              </td>
+
+              <td class="p-5 text-gray-300">
+                <%= habit.description %>
+              </td>
+
+              <td class="p-5">
+                <span class="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">
+                  <%= habit.category %>
+                </span>
+              </td>
+
+              <td class="p-5 text-green-400 font-bold">
+                +<%= habit.score %>
+              </td>
+
+              <td class="p-5 flex gap-4">
+
+                <.link
+                  navigate={~p"/habits/#{habit.id}/edit"}
+                  class="text-blue-400 hover:text-blue-300">
+
+                  Editar
+
+                </.link>
+
+                <button
+                  phx-click="delete"
+                  phx-value-id={habit.id}
+                  onclick="return confirm('Deseja excluir este hábito?')"
+                  class="text-red-400 hover:text-red-300">
+
+                  Excluir
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          <% end %>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+</div>

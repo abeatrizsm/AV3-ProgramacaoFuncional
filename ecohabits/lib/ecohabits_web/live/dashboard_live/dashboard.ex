@@ -2,6 +2,8 @@ defmodule EcohabitsWeb.DashboardLive.Dashboard do
   use EcohabitsWeb, :live_view
 
   alias Ecohabits.Habits
+  alias Ecohabits.Repo
+  alias Ecohabits.Accounts.User
   alias Phoenix.PubSub
 
   @impl true
@@ -62,27 +64,32 @@ defmodule EcohabitsWeb.DashboardLive.Dashboard do
 
     case Habits.create_check_in(user) do
       {:ok, _check_in} ->
+
+        updated_user =
+          Repo.get!(User, user.id)
+
         history =
-          Habits.list_user_check_ins(user)
-
-        points =
-          Habits.weekly_points(user)
+          Habits.list_user_check_ins(updated_user)
 
         {:noreply,
-         socket
-         |> assign(
-           history: history,
-           points: points
-         )
-         |> put_flash(:info, "Check-in realizado com sucesso!")}
+        socket
+        |> assign(
+          user: updated_user,
+          history: history,
+          points: updated_user.points
+        )
+        |> put_flash(
+          :info,
+          "Check-in realizado com sucesso!"
+        )}
 
-      {:error, _changeset} ->
-        {:noreply,
-         put_flash(
-           socket,
-           :error,
-           "Você já realizou check-in hoje!"
-         )}
+      {:error, changeset} ->
+      {:noreply,
+      put_flash(
+        socket,
+        :error,
+        "Você já realizou check-in hoje!"
+      )}
     end
   end
 

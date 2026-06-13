@@ -3,6 +3,7 @@ defmodule Ecohabits.Habits do
 
   alias Ecohabits.Repo
   alias Ecohabits.Habits.CheckIn
+  alias Ecohabits.Habits.Habit
   alias Ecohabits.Accounts.User
 
   def create_check_in(user) do
@@ -17,6 +18,21 @@ defmodule Ecohabits.Habits do
     |> case do
       {:ok, check_in} = result ->
 
+        habit_points =
+          total_habit_points(user)
+
+        IO.inspect(habit_points, label: "PONTOS DOS HÁBITOS")
+        IO.inspect(user.points, label: "PONTOS ATUAIS")
+
+        new_points =
+        user.points + Decimal.to_integer(habit_points)
+
+      IO.inspect(new_points, label: "NOVA PONTUACAO")
+
+      user
+      |> Ecto.Changeset.change(points: new_points)
+      |> Repo.update()
+
         Phoenix.PubSub.broadcast(
           Ecohabits.PubSub,
           "community_feed",
@@ -29,6 +45,21 @@ defmodule Ecohabits.Habits do
         error
     end
   end
+
+  def total_habit_points(user) do
+  total =
+    Repo.aggregate(
+      from(h in Habit,
+        where: h.user_id == ^user.id
+      ),
+      :sum,
+      :score
+    ) || 0
+
+  IO.inspect(total, label: "TOTAL HABITS POINTS")
+
+  total
+end
 
   def list_recent_check_ins do
     Repo.all(
@@ -50,16 +81,6 @@ defmodule Ecohabits.Habits do
   end
 
   def weekly_points(user) do
-    start_of_week =
-      Date.beginning_of_week(Date.utc_today())
-
-    Repo.aggregate(
-      from(c in CheckIn,
-        where:
-          c.user_id == ^user.id and
-            c.date >= ^start_of_week
-      ),
-      :count
-    ) * 10
+    user.points
   end
 end
